@@ -51,16 +51,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 // 自定义权限拒绝处理类
                 .and()
+                //给ExceptionHandlingConfigurer添加处理未登录和权限不足的处理类
                 .exceptionHandling()
                 .accessDeniedHandler(restfulAccessDeniedHandler())
                 .authenticationEntryPoint(restAuthenticationEntryPoint())
-                // 自定义权限拦截器JWT过滤器
+                // 自定义权限拦截器JWT过滤器，放在UsernamePasswordAuthenticationFilter之前
                 .and()
                 .addFilterBefore(jwtAuthenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         //有动态权限配置时添加动态权限校验过滤器
         if(dynamicSecurityService!=null){
             registry.and().addFilterBefore(dynamicSecurityFilter(), FilterSecurityInterceptor.class);
         }
+        //registry.and().formLogin(); //这样就可以初始化：UsernamePasswordAuthenticationFilter
+
     }
 
     @Override
@@ -107,6 +110,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @ConditionalOnBean(name = "dynamicSecurityService")
     @Bean
+    //用于验证用户是否有足够的权限访问该资源
     public DynamicAccessDecisionManager dynamicAccessDecisionManager() {
         return new DynamicAccessDecisionManager();
     }

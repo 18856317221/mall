@@ -51,7 +51,8 @@ public class DynamicSecurityFilter extends AbstractSecurityInterceptor implement
                 return;
             }
         }
-        //此处会调用AccessDecisionManager中的decide方法进行鉴权操作
+        //此处会调用DynamicSecurityMetadataSource的getAttributes方法获取访问的路径的资源名称
+        //AccessDecisionManager中的decide方法进行鉴权操作，比较该用户的角色的权限列表是否拥有该资源名称的访问权限
         InterceptorStatusToken token = super.beforeInvocation(fi);
         try {
             fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
